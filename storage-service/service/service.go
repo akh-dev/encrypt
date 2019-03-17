@@ -1,6 +1,8 @@
 package service
 
 import (
+	"crypto/sha512"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -139,23 +141,35 @@ func (s *Service) handleRetrieveRequest(w http.ResponseWriter, r *http.Request) 
 	writeResponse(w, respObj)
 }
 
+func (s *Service) keyHash(key string) string {
+	hasher := sha512.New()
+	saltedKey := fmt.Sprintf("%sx%s", key, s.config.Service.Salt)
+	hasher.Write([]byte(saltedKey))
+	sum := hasher.Sum(nil)
+	return base64.URLEncoding.EncodeToString(sum)
+}
+
 func (s *Service) store(id, plaintext string) error {
+	hash := s.keyHash(id)
+
 	lock.Lock()
 	defer lock.Unlock()
 
 	if s.config.Service.Debug {
-		log.Printf("storing\nid: %s\ntext: %s\n", id, plaintext)
+		log.Printf("storing\nid: %s\ntext: %s\n", hash, plaintext)
 	}
-	s.storage[id] = plaintext
+	s.storage[hash] = plaintext
 
 	return nil
 }
 
 func (s *Service) retrieve(id string) (string, error) {
+	hash := s.keyHash(id)
+
 	lock.RLock()
 	defer lock.RUnlock()
 
-	plaintext, ok := s.storage[id]
+	plaintext, ok := s.storage[hash]
 	if !ok {
 		return "", NotFoundError
 	}

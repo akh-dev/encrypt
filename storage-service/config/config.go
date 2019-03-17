@@ -14,6 +14,7 @@ type Config struct {
 type ServiceConf struct {
 	Port  string `env:"LISTEN_PORT" envDefault:"8081"`
 	Debug bool   `env:"DEBUG" envDefault:"false"`
+	Salt  string `env:"HASH_SALT" envDefault:"kjhsdifuheyoes"`
 }
 
 func Get() (*Config, error) {
