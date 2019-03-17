@@ -45,6 +45,7 @@ func TestEncryptDecrypt(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to generate new key : %s", err.Error())
 	}
+
 	ciphertext, err := aes.Encrypt(testCases[2].plaintext, testCases[2].key)
 	if err != nil {
 		t.Fatalf("test case %d failed : failed to encode :%s", 3, err.Error())
