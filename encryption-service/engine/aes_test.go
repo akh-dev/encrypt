@@ -2,6 +2,7 @@ package engine
 
 import (
 	"bytes"
+	"encoding/base64"
 	"testing"
 
 	"github.com/pkg/errors"
@@ -52,9 +53,21 @@ func TestEncryptDecrypt(t *testing.T) {
 	}
 
 	_, err = aes.Decrypt(ciphertext, incorrectKey)
+	//t.Error(err)
 	if err == nil {
 		t.Error("test case failed : expected to receive error \"cipher: message authentication failed\" but got success")
 	}
+
+	cipherStr := "eExBjrIiqouen6Mfy5BjItJv+CDotFikcotWCOlQxVHazDyQEzCB+HXt8B0OIXGk9Cdw+EPrMEMHjmc="
+	keyStr := "7pdenu5EBuR3RNqt9Poty0TypaJttOL3kJ9Zei8ebAA="
+	cipherBytes, _ := base64.StdEncoding.DecodeString(cipherStr)
+	keyBytes, _ := base64.StdEncoding.DecodeString(keyStr)
+	keyArray := [32]byte{}
+	for i, b := range keyBytes {
+		keyArray[i] = b
+	}
+	plaintext, err := aes.Decrypt(cipherBytes, &keyArray)
+	t.Error(string(plaintext))
 }
 
 func setupTestData(aes *AESEngine) ([]testcase, error) {

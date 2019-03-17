@@ -29,6 +29,16 @@ func respondInternalServerError(w http.ResponseWriter, msg string, errors []stri
 	writeResponse(w, respObj)
 }
 
+func respondNotFound(w http.ResponseWriter, errors []string) {
+	w.WriteHeader(http.StatusBadRequest)
+	respObj := &api.Response{
+		StatusCode:    http.StatusNotFound,
+		StatusMessage: http.StatusText(http.StatusNotFound),
+		Errors:        errors,
+	}
+	writeResponse(w, respObj)
+}
+
 func writeResponse(w http.ResponseWriter, respObj *api.Response) {
 	response, err := json.Marshal(respObj)
 	if err != nil {
@@ -49,9 +59,9 @@ func writeCommonHeaders(w http.ResponseWriter) {
 	w.Header().Add("Content-Type", "application/json")
 }
 
-func parseStoreRequest(r *http.Request) (*api.StoreRequest, error) {
+func parseStoreRequest(r *http.Request) (*api.IdMessage, error) {
 	dec := json.NewDecoder(r.Body)
-	storeReq := &api.StoreRequest{}
+	storeReq := &api.IdMessage{}
 	if err := dec.Decode(storeReq); err != nil {
 		err = errors.Wrap(err, "failed to parse Store request")
 		log.Println(err.Error())
@@ -59,4 +69,16 @@ func parseStoreRequest(r *http.Request) (*api.StoreRequest, error) {
 	}
 
 	return storeReq, nil
+}
+
+func parseRetrieveRequest(r *http.Request) (*api.IdKeyPair, error) {
+	dec := json.NewDecoder(r.Body)
+	retrieveReq := &api.IdKeyPair{}
+	if err := dec.Decode(retrieveReq); err != nil {
+		err = errors.Wrap(err, "failed to parse Retrieve request")
+		log.Println(err.Error())
+		return nil, err
+	}
+
+	return retrieveReq, nil
 }
