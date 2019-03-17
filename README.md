@@ -4,8 +4,10 @@
 1) Checkout, check config folders in each service 
 
 2) build both services with
+```bash
 go build github.com/akh-dev/encrypt/encryption-service
 go build github.com/akh-dev/encrypt/storage-service
+```
 
 3) Run both services from command line
 
